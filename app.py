@@ -22,6 +22,9 @@ st.set_page_config(
 st.title("🔍 Semantic Search")
 st.write("Search information from data.txt using AI semantic search.")
 
+# Optional file uploader: allow users to upload `data.txt` directly.
+uploaded_file = st.file_uploader("Upload a data.txt file (optional)", type=["txt"])
+
 
 # ============================================================
 # 2. FIND data.txt
@@ -39,7 +42,7 @@ file_path = os.path.join(
 # 3. CHECK WHETHER data.txt EXISTS
 # ============================================================
 
-if not os.path.exists(file_path):
+if uploaded_file is None and not os.path.exists(file_path):
 
     st.error("❌ data.txt was not found!")
 
@@ -54,12 +57,16 @@ if not os.path.exists(file_path):
 # ============================================================
 
 try:
-
-    with open(file_path, "r", encoding="utf-8") as file:
-        documents = file.readlines()
+    if uploaded_file is not None:
+        raw = uploaded_file.read().decode("utf-8")
+        documents = raw.splitlines()
+        st.success(f"✅ Uploaded file loaded: {uploaded_file.name}")
+    else:
+        with open(file_path, "r", encoding="utf-8") as file:
+            documents = file.readlines()
+        st.success("✅ data.txt loaded from Desktop")
 
 except Exception as e:
-
     st.error(f"Error reading data.txt: {e}")
     st.stop()
 
